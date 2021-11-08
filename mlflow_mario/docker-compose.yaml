@@ -1,0 +1,41 @@
+version: '3'
+services:
+  mlflow:    
+    build: ./mlflow-server
+    ports:
+      - "5000:5000"
+    depends_on:
+      - "ftpd"
+      - "postgres"
+    volumes: 
+      - /usr/bin/docker:/usr/bin/docker
+      - /var/run/docker.sock:/var/run/docker.sock
+  ftpd:
+    image: "mauler/simple-ftp-server"
+    environment:
+      - FTP_USER=test
+      - FTP_PASS=test
+    ports:
+      - "21:21"        
+  postgres:
+    build: ./postgres-mlflow
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=test_db
+  jupyter:
+    environment:
+      - JUPYTER_ENABLE_LAB=yes  
+    build: ./jupyter-mlflow
+    ports:
+      - "8888:8888"
+  portainer:    
+    image: "portainer/portainer:latest"
+    volumes: 
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports: 
+      - "9000:9000"
+      - "8000:8000"
+
